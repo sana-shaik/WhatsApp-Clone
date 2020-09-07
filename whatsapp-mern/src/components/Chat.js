@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Chat.css";
 import { Avatar, IconButton } from "@material-ui/core";
 import {
@@ -7,24 +7,36 @@ import {
   MoreVert,
   InsertEmoticon,
   Mic,
-  Send
+  Send,
 } from "@material-ui/icons/";
-import axios from './axios';
+import axios from "./axios";
+import Picker from "emoji-picker-react";
 
 const Chat = ({ messages }) => {
   const [input, setInput] = useState("");
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [chosenEmoji, setChosenEmoji] = useState(null);
+
+  useEffect(() => {
+    setShowEmojiPicker(false);
+  }, [chosenEmoji]);
+
+  const onEmojiClick = (event, emojiObject) => {
+    setChosenEmoji(emojiObject);
+    setInput(emojiObject.emoji);
+  };
+
   const sendMessage = async (e) => {
     e.preventDefault();
 
     await axios.post(`/api/v1/messages/new`, {
-        message: input,
-        name: 'Sana',
-        timestamp: 'Just now!',
-        received: false,
+      message: input,
+      name: "Sana",
+      timestamp: "Just now!",
+      received: false,
     });
 
-    setInput('');
-
+    setInput("");
   };
   return (
     <div className="chat">
@@ -73,7 +85,20 @@ const Chat = ({ messages }) => {
         </p>
       </div>
       <div className="chat__footer">
-        <InsertEmoticon />
+        {/* <span onClick={() => (<Picker />)}> */}
+        <div onClick={() => setShowEmojiPicker(true)}>
+          {showEmojiPicker ? (
+            <Picker onEmojiClick={onEmojiClick} />
+          ) : (
+            <IconButton>
+              <InsertEmoticon />
+            </IconButton>
+          )}
+        </div>
+
+        {/* </span> */}
+
+        {/* <Picker /> */}
         <form>
           <input
             value={input}
